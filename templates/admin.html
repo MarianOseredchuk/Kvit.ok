@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін Панель - Kvit.ok</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    
+</head>
+
+<body>
+
+    <header class="glass-effect"
+        style="margin: 20px; padding: 15px 30px; display: flex; justify-content: space-between;">
+        <span class="logo-placeholder">[ Kvit.ok Admin ]</span>
+        <a href="{{ url_for('dashboard_page') }}" class="main-cta-button" style="text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Назад в кабінет
+        </a>
+    </header>
+
+    <div class="admin-container">
+
+        <div class="admin-section glass-effect">
+            <h2 class="section-title"><i class="fas fa-users"></i> Керування користувачами</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ім'я</th>
+                        <th>Email / Логін</th>
+                        <th>Роль</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-section glass-effect">
+            <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Керування подіями</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Назва</th>
+                        <th>Дата</th>
+                        <th>Місця</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody id="events-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="editEventModal" class="modal-overlay">
+        <div class="modal-window glass-effect">
+            <div class="modal-header">
+                <h2>Редагувати подію</h2>
+                <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="edit-event-form">
+                <input type="hidden" id="edit-event-id" name="id">
+                <div class="form-grid">
+                    <div class="form-column">
+                        <label>Назва:</label>
+                        <input type="text" id="edit-title" name="title" required>
+                        <label>Дата:</label>
+                        <input type="date" id="edit-date" name="date" required>
+                        <label>Час:</label>
+                        <input type="time" id="edit-time" name="time" required>
+                    </div>
+                    <div class="form-column">
+                        <label>Локація:</label>
+                        <input type="text" id="edit-location" name="location" required>
+                        <label>Ціна:</label>
+                        <input type="number" id="edit-price" name="price" required>
+                        <label>Всього місць:</label>
+                        <input type="number" id="edit-total-seats" name="total_seats" required>
+                    </div>
+                </div>
+                <button type="submit" class="main-cta-button" style="width: 100%; margin-top: 20px;">Зберегти
+                    зміни</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+
+</html>

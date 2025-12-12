@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід - Kvit.ok</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+
+<body>
+
+    <header class="simple-header glass-effect">
+        <a href="{{ url_for('index') }}" class="logo-placeholder">[ Kvit.ok ]</a>
+    </header>
+
+    <main class="register-page">
+        <div class="register-container glass-effect">
+            <h2 class="section-title">Вхід в кабінет</h2>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="email"><i class="fas fa-envelope"></i> Email:</label>
+                    <input type="text" id="email" name="email" placeholder="Email або Нікнейм" required>
+                </div>
+                <div class="input-group">
+                    <label for="password"><i class="fas fa-lock"></i> Пароль:</label>
+                    <input type="password" id="password" name="password" placeholder="Ваш пароль" required>
+                </div>
+
+                <button type="submit" class="main-cta-button register-submit-btn">Увійти</button>
+            </form>
+
+            <div class="login-link">
+                <p>Немає акаунту? <a href="{{ url_for('register_page') }}">Зареєструватись</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/login-form.js') }}"></script>
+</body>
+
+</html>

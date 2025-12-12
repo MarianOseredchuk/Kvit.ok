@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kvit.ok - Афіша Подій</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <header class="glass-effect">
+        <a href="{{ url_for('index') }}" class="logo-placeholder">[ Kvit.ok ]</a>
+    
+        <div class="auth-buttons">
+            <a href="{{ url_for('dashboard_page') }}" class="account-icon" aria-label="Мій акаунт">
+                <i class="fas fa-user-circle"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="hybrid-wrapper">
+
+        <aside class="filter-sidebar glass-effect">
+            <h3><i class="fas fa-filter"></i> Фільтри</h3>
+        
+            <div class="filter-group">
+                <h4>Оберіть дату:</h4>
+                <div class="calendar-widget">
+                    <div class="calendar-header">
+                        <span id="prev-month" style="cursor:pointer">&lt;</span>
+                        <strong id="current-month-year">...</strong>
+                        <span id="next-month" style="cursor:pointer">&gt;</span>
+                    </div>
+                    <div class="calendar-grid" id="calendar-grid"></div>
+                </div>
+            </div>
+        
+            <div class="filter-group">
+                <h4>Ціна (грн)</h4>
+                <div class="filter-options" style="flex-direction: row; gap: 10px;">
+                    <input type="number" id="price-min" placeholder="Від"
+                        style="width: 45%; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                    <input type="number" id="price-max" placeholder="До"
+                        style="width: 45%; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                </div>
+            </div>
+        
+            <div class="filter-group">
+                <h4>Час</h4>
+                <div class="filter-options">
+                    <input type="time" id="time-from" name="time-from" value="00:00"
+                        style="padding:5px; border-radius:5px; border:1px solid #ccc;">
+                    <label for="time-from" style="justify-content: center; font-size: 0.8em;">до</label>
+                    <input type="time" id="time-to" name="time-to" value="23:59"
+                        style="padding:5px; border-radius:5px; border:1px solid #ccc;">
+                </div>
+            </div>
+        
+            <div class="filter-group">
+                <h4>Тип події</h4>
+                <div class="filter-options scrollable">
+                    <label><input type="checkbox" name="type" value="Концерт"> Концерт</label>
+                    <label><input type="checkbox" name="type" value="Театр"> Театр</label>
+                    <label><input type="checkbox" name="type" value="Освіта"> Освіта</label>
+                    <label><input type="checkbox" name="type" value="Спорт"> Спорт</label>
+                    <label><input type="checkbox" name="type" value="Виставка"> Виставка</label>
+                    <label><input type="checkbox" name="type" value="Кіно"> Кіно</label>
+                    <label><input type="checkbox" name="type" value="Кіно"> Стендап</label>
+                </div>
+            </div>
+        
+            <div class="filter-group">
+                <h4>Локація</h4>
+                <div class="filter-options scrollable">
+                    <label><input type="checkbox" name="location" value="Головна Сцена"> Бочка-ПАБ</label>
+                    <label><input type="checkbox" name="location" value="Atlas"> Atlas</label>
+                    <label><input type="checkbox" name="location" value="Malevich"> Malevich</label>
+                    <label><input type="checkbox" name="location" value="Лофт"> Лофт</label>
+                    <label><input type="checkbox" name="location" value="Оперний театр"> Оперний театр</label>
+                    <label><input type="checkbox" name="location" value="Оперний театр"> Stereo Plaza</label>
+                    <label><input type="checkbox" name="location" value="Оперний театр"> Палац Спорту</label>
+                    <label><input type="checkbox" name="location" value="Оперний театр"> ВДНГ</label>
+                    <label><input type="checkbox" name="location" value="Оперний театр"> Caribbean Club</label>
+                    <label><input type="checkbox" name="location" value="Оперний театр"> Підвал Культури</label>
+                    <label><input type="checkbox" name="location" value="Оперний театр"> Osocor Residence</label>
+                    <label><input type="checkbox" name="location" value="Оперний театр"> October Hall</label>
+                </div>
+            </div>
+        
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+            
+                <button class="main-cta-button filter-apply-btn" style="flex: 1; width: auto; margin: 0; padding: 12px 0;">
+                    Застосувати
+                </button>
+            
+                <button class="main-cta-button" id="reset-filters-btn"
+                    style="flex: 1; background-color: #ff6b6b; color: white; padding: 12px 0;">
+                    Скинути
+                </button>
+            
+            </div>
+        </aside>
+
+        <main class="event-list">
+            <h2 class="section-title">Афіша Подій</h2>
+
+            <div class="search-bar-wrapper">
+                <div class="search-bar glass-effect">
+                    <input type="text" placeholder="Пошук за назвою або локацією...">
+                    <button class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="event-list-placeholder" id="event-list-placeholder">
+                <i class="fas fa-calendar-alt"
+                    style="font-size: 3em; color: var(--mint-light); display:block; margin: 0 auto 20px;"></i>
+                <h3 style="text-align:center">Завантаження подій...</h3>
+            </div>
+
+            <div class="event-list-results" id="event-list-results">
+            </div>
+        </main>
+    </div>
+
+    
+    <div id="bookTicketModal" class="modal-overlay">
+        <div class="modal-window glass-effect" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 id="modal-event-title">Бронювання квитка</h2>
+                <span class="close-modal" onclick="closeBookModal()">&times;</span>
+            </div>
+    
+            <form id="book-ticket-form">
+                <input type="hidden" id="event-id-input" name="event_id">
+    
+                <p>Ви реєструєтесь на подію: <strong id="event-name-display">...</strong></p>
+                <p>Вартість: <strong id="event-price-display">0 грн</strong></p>
+                <p style="color: #e74c3c;">Залишилось місць: <strong id="event-remaining-display">...</strong></p>
+    
+                <hr style="margin: 15px 0;">
+    
+                <div class="input-group">
+                    <label>Ваше ім'я:</label>
+                    <input type="text" value="{{ current_user.name if current_user.is_authenticated else '' }}" readonly>
+                </div>
+    
+                {% if not current_user.is_authenticated %}
+                <p style="color: #e74c3c;">
+                    Щоб забронювати квиток, будь ласка, <a href="{{ url_for('login_page') }}">увійдіть</a> або <a
+                        href="{{ url_for('register_page') }}">зареєструйтесь</a>.
+                </p>
+                <button type="submit" class="main-cta-button" disabled>Підтвердити реєстрацію</button>
+                {% else %}
+                <button type="submit" class="main-cta-button" style="width: 100%;">Підтвердити реєстрацію</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div id="eventDetailsModal" class="modal-overlay">
+        <div class="modal-window glass-effect" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="details-title">Назва події</h2>
+                <span class="close-modal" onclick="closeDetailsModal()">&times;</span>
+            </div>
+    
+            <div class="modal-body" style="text-align: left;">
+                <img id="details-image" src="" alt="Event Image"
+                    style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; display: none;">
+    
+                <p style="font-size: 0.9em; color: gray; margin-bottom: 10px;">
+                    <i class="fas fa-clock"></i> <span id="details-time"></span> |
+                    <i class="fas fa-map-marker-alt"></i> <span id="details-location"></span>
+                </p>
+    
+                <div id="details-description"
+                    style="line-height: 1.6; margin-bottom: 20px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">
+                    Тут буде опис...
+                </div>
+    
+                <button id="details-book-btn" class="main-cta-button" style="width: 100%;">
+                    Зареєструватись
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-window glass-effect success-modal-content" style="max-width: 400px;">
+            <div class="success-icon-box">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="success-title" id="success-modal-title">Чудово!</h2>
+            <p class="success-message" id="success-modal-msg">Операція пройшла успішно.</p>
+            <button class="main-cta-button" onclick="closeSuccessModal()" style="width: 100%;">Зрозуміло</button>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/modal-success.js') }}"></script>
+
+    <footer class="glass-effect">
+        <p>© 2025 Kvit.ok. Всі права захищено.</p>
+    </footer>
+
+    <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+
+</html>

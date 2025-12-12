@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мій Кабінет - Kvit.ok</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <header class="glass-effect">
+        <a href="{{ url_for('index') }}" class="logo-placeholder">[ Kvit.ok ]</a>
+
+        <div class="auth-buttons">
+            <a href="{{ url_for('dashboard_page') }}" class="account-icon" aria-label="Мій акаунт">
+                <i class="fas fa-user-circle"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="hybrid-wrapper">
+
+        <aside class="filter-sidebar glass-effect">
+            <h3>Привіт, {{ current_user.name }}!</h3>
+            <p style="font-size: 0.9em; color: gray;">Ваш статус:
+                {% if current_user.role == 'organizer' %}Організатор
+                {% elif current_user.role == 'admin' %}Адміністратор
+                {% else %}Клієнт
+                {% endif %}
+            </p>
+
+            <nav class="dashboard-nav">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-calendar-check"></i> Мій Розклад
+                </a>
+
+                {% if current_user.role == 'organizer' or current_user.role == 'admin' %}
+                <a href="#" class="nav-item" onclick="openCreateModal()">
+                    <i class="fas fa-plus-circle"></i> Створити Подію
+                </a>
+                {% endif %}
+
+                {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('admin_panel') }}" class="nav-item"
+                    style="color: #e67e22; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 15px; margin-top: 10px;">
+                    <i class="fas fa-tools"></i> Панель Адміна
+                </a>
+                {% endif %}
+
+                <a href="{{ url_for('logout') }}" class="nav-item logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Вийти
+                </a>
+            </nav>
+        </aside>
+
+
+        <main class="event-list">
+            <h2 class="section-title">Мій Розклад</h2>
+            <p class="subtitle">Події, на які ви зареєстровані.</p>
+
+            <div id="my-tickets-container">
+                <div class="schedule-item glass-effect" style="padding: 20px; text-align:center">
+                    <p>Завантаження квитків...</p>
+                </div>
+            </div>
+
+            <div id="createEventModal" class="modal-overlay">
+                <div class="modal-window glass-effect">
+                    <div class="modal-header">
+                        <h2>Створити нову подію</h2>
+                        <span class="close-modal" onclick="closeCreateModal()">&times;</span>
+                    </div>
+
+                    <form id="create-event-form" enctype="multipart/form-data">
+                        <div class="form-grid">
+                            <div class="form-column">
+                                <label>Назва події:</label>
+                                <input type="text" name="title" placeholder="Концерт гурту..." required>
+
+                                <label>Дата:</label>
+                                <input type="date" name="date" required>
+
+                                <label>Час:</label>
+                                <input type="time" name="time" required>
+
+                                <label>Локація:</label>
+                                <select name="location">
+                                    <option value="Головна Сцена">Головна Сцена</option>
+                                    <option value="Atlas">Atlas</option>
+                                    <option value="Malevich">Malevich</option>
+                                    <option value="Лофт">Лофт</option>
+                                    <option value="Оперний театр">Оперний театр</option>
+                                </select>
+                            </div>
+                            <div class="form-column">
+                                <label>Тип:</label>
+                                <select name="type">
+                                    <option value="Концерт">Концерт</option>
+                                    <option value="Театр">Театр</option>
+                                    <option value="Освіта">Освіта</option>
+                                    <option value="Спорт">Спорт</option>
+                                    <option value="Виставка">Виставка</option>
+                                    <option value="Кіно">Кіно</option>
+                                </select>
+
+                                <label>Вартість (грн):</label>
+                                <input type="number" name="price" placeholder="0" required>
+
+                                <label>Фотографії події:</label>
+                                <input type="file" id="event-images" name="images" accept="image/png, image/jpeg, image/jpg, image/webp" multiple
+                                    style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; width: 100%;">
+                                <p style="font-size: 0.8em; color: gray; margin-top: 5px;">
+                                    <i class="fas fa-info-circle"></i> Вимоги: до 5 фото, макс. 5 MB кожне. Формати: JPG, PNG, WEBP.
+                                </p>
+                                <div class="row-inputs">
+                                    <div><label>Всього:</label><input type="number" name="total_seats" id="total_seats"
+                                            value="100"></div>
+                                    <div><label>Залишилось:</label><input type="number" name="remaining_seats"
+                                            id="remaining_seats" value="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <label>Опис події:</label>
+                        <textarea name="description" rows="3" placeholder="Деталі події..."></textarea>
+
+                        <button type="submit" class="main-cta-button"
+                            style="width: 100%; margin-top: 20px;">Створити</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="dashboardDetailsModal" class="modal-overlay">
+                <div class="modal-window glass-effect" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h2 id="dash-details-title">...</h2>
+                        <span class="close-modal" onclick="closeDashDetails()">&times;</span>
+                    </div>
+                    <div class="modal-body" style="text-align: left;">
+
+                        <div id="dash-gallery-container"></div>
+
+                        <p style="font-size: 0.9em; color: gray; margin-bottom: 10px;">
+                            <i class="fas fa-clock"></i> <span id="dash-details-time"></span> |
+                            <i class="fas fa-map-marker-alt"></i> <span id="dash-details-location"></span>
+                        </p>
+
+                        <div id="dash-details-description"
+                            style="line-height: 1.6; margin-bottom: 20px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-window glass-effect success-modal-content" style="max-width: 400px;">
+            <div class="success-icon-box">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="success-title" id="success-modal-title">Чудово!</h2>
+            <p class="success-message" id="success-modal-msg">Операція пройшла успішно.</p>
+            <button class="main-cta-button" onclick="closeSuccessModal()" style="width: 100%;">Зрозуміло</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/modal-success.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+
+</html>

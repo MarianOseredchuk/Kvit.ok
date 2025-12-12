@@ -645,4 +645,29 @@ footer {
             background-color: #c0392b;
         }
     
+                /* Кнопка скасування */
+                .btn-cancel {
+                    background-color: #ff6b6b !important;
+                    /* Червоний колір */
+                    transition: all 0.3s ease;
+                }
+        
+                .btn-cancel:hover {
+                    background-color: #ee5253 !important;
+                    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+                }
+        
+                /* Стиль модального вікна для повідомлення про скасування (Warning Mode) */
+                .success-modal-content.warning .success-icon-box {
+                    color: #ff6b6b;
+                    /* Червона іконка */
+                }
+        
+                .success-modal-content.warning .main-cta-button {
+                    background-color: #ff6b6b;
+                }
+        
+                .success-modal-content.warning .main-cta-button:hover {
+                    background-color: #ee5253;
+                }
         

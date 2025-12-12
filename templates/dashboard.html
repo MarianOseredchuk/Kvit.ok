@@ -167,6 +167,32 @@
         </div>
     </div>
 
+    <div id="cancelModal" class="modal-overlay">
+        <div class="modal-window glass-effect" style="max-width: 400px; text-align: center; padding: 40px;">
+    
+            <div style="margin-bottom: 20px; animation: popIn 0.5s;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 4em; color: #e74c3c;"></i>
+            </div>
+    
+            <h2 style="margin-bottom: 10px; color: var(--text-dark);">Скасування квитка</h2>
+    
+            <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 1.1em;">
+                Ви впевнені, що хочете повернути цей квиток? <br>
+                <span style="font-size: 0.9em; color: #e74c3c;">Це звільнить місце для інших відвідувачів.</span>
+            </p>
+    
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="main-cta-button" onclick="closeCancelModal()" style="background-color: #95a5a6; flex: 1;">
+                    Ні, залишити
+                </button>
+                <button class="main-cta-button" onclick="processCancellation()"
+                    style="background-color: #e74c3c; flex: 1; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);">
+                    Так, скасувати
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let onModalCloseCallback = null;
         function showSuccessModal(title, message, callback) {
@@ -203,30 +229,36 @@
                         const safeDesc = (ev.description || "").replace(/"/g, '&quot;');
                         const safeImg = ev.image_url || "";
 
+                        // ... всередині events.forEach
                         container.innerHTML += `
-                            <div class="event-list-card glass-effect" style="opacity: 1; transform: none; border-left: 5px solid var(--mint-primary);">
-                                <div class="event-time" style="font-size: 1.4em;">
-                                    ${ev.time}<br>
-                                    <span style="font-size: 0.5em; color: gray;">${ev.date}</span>
-                                </div>
-                                <div class="event-info">
-                                    <h4 class="event-title">${ev.title}</h4>
-                                    <p class="event-meta">
-                                        <i class="fas fa-map-marker-alt"></i> ${ev.location}
-                                    </p>
-                                </div>
-                                <div class="event-action" style="display: flex; flex-direction: column; gap: 5px;">
-                                    <button class="main-cta-button" style="background-color: #555;">
-                                        <i class="fas fa-ticket-alt"></i> Квиток
-                                    </button>
-                                    
-                                    <button class="main-cta-button" style="background-color: #95a5a6; font-size: 0.8em;"
-                                        onclick="openDashDetails('${ev.title}', '${ev.time}', '${ev.location}', '${safeDesc}', '${safeImg}')">
-                                        <i class="fas fa-info-circle"></i> Інфо
-                                    </button>
-                                </div>
-                            </div>
-                        `;
+    <div class="event-list-card glass-effect" style="opacity: 1; transform: none; border-left: 5px solid var(--mint-primary);">
+        <div class="event-time" style="font-size: 1.4em;">
+            ${ev.time}<br>
+            <span style="font-size: 0.5em; color: gray;">${ev.date}</span>
+        </div>
+        <div class="event-info">
+            <h4 class="event-title">${ev.title}</h4>
+            <p class="event-meta">
+                <i class="fas fa-map-marker-alt"></i> ${ev.location}
+            </p>
+        </div>
+        <div class="event-action" style="display: flex; flex-direction: column; gap: 5px;">
+            <button class="main-cta-button" style="background-color: #555; cursor: default;">
+                <i class="fas fa-check"></i> Куплено
+            </button>
+            
+            <button class="main-cta-button" style="background-color: #95a5a6; font-size: 0.8em;"
+                onclick="openDashDetails('${ev.title}', '${ev.time}', '${ev.location}', '${safeDesc}', '${safeImg}')">
+                <i class="fas fa-info-circle"></i> Інфо
+            </button>
+
+            <button class="main-cta-button" style="background-color: #e74c3c; font-size: 0.8em;"
+                onclick="cancelTicket(${ev.id})">
+                <i class="fas fa-times-circle"></i> Скасувати
+            </button>
+        </div>
+    </div>
+`;
                     });
                 }
             } catch (error) {
@@ -344,6 +376,100 @@
             }
         });
         
+        window.cancelTicket = async function (eventId) {
+                if (!confirm('Ви впевнені, що хочете скасувати цей квиток? Це звільнить місце для інших.')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/cancel_ticket', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ event_id: eventId })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showSuccessModal(
+                            "Скасовано",
+                            "Ваш квиток успішно анульовано.",
+                            () => location.reload()
+                        );
+                    } else {
+                        alert('Помилка: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Помилка:', error);
+                    alert('Помилка з\'єднання із сервером');
+                }
+            }
+        
+
+            let ticketIdToCancel = null; // Змінна для збереження ID події
+                const cancelModal = document.getElementById('cancelModal');
+
+                // 1. Ця функція викликається при натисканні кнопки на картці
+                window.cancelTicket = function (eventId) {
+                    ticketIdToCancel = eventId; // Запам'ятовуємо ID
+                    cancelModal.style.display = 'flex'; // Відкриваємо красиве вікно
+                }
+
+                // 2. Функція закриття вікна
+                window.closeCancelModal = function () {
+                    cancelModal.style.display = 'none';
+                    ticketIdToCancel = null;
+                }
+
+                // 3. Закриття при кліку поза вікном
+                window.onclick = function (event) {
+                    if (event.target == cancelModal) closeCancelModal();
+                    // ... ваш існуючий код для інших вікон ...
+                    if (event.target == document.getElementById('createEventModal')) closeCreateModal();
+                    if (event.target == document.getElementById('dashboardDetailsModal')) closeDashDetails();
+                    if (event.target == document.getElementById('successModal')) closeSuccessModal();
+                }
+
+                // 4. Основна логіка скасування (виконується, коли натиснули "Так, скасувати")
+                window.processCancellation = async function () {
+                    if (!ticketIdToCancel) return;
+
+                    // Змінюємо текст кнопки, щоб показати процес
+                    const confirmBtn = document.querySelector('#cancelModal button[onclick="processCancellation()"]');
+                    const originalText = confirmBtn.innerText;
+                    confirmBtn.innerText = "Обробка...";
+                    confirmBtn.disabled = true;
+
+                    try {
+                        const response = await fetch('/api/cancel_ticket', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ event_id: ticketIdToCancel })
+                        });
+
+                        const result = await response.json();
+
+                        closeCancelModal(); // Закриваємо вікно питання
+
+                        if (result.success) {
+                            // Показуємо вікно успіху
+                            showSuccessModal(
+                                "Повернення оформлено",
+                                "Ваш квиток успішно анульовано. Дякуємо, що попередили.",
+                                () => location.reload()
+                            );
+                        } else {
+                            alert('Помилка: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('Помилка:', error);
+                        alert('Помилка з\'єднання із сервером');
+                    } finally {
+                        // Повертаємо кнопку до початкового стану
+                        confirmBtn.innerText = originalText;
+                        confirmBtn.disabled = false;
+                    }
+                }
     </script>
 </body>
 

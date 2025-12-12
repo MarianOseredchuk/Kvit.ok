@@ -340,6 +340,28 @@ def delete_user(user_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)})
+    
+@app.route('/api/cancel_ticket', methods=['POST'])
+@login_required
+def cancel_ticket():
+    data = request.get_json()
+    event_id = data.get('event_id')
+    
+    event = Event.query.get(event_id)
+    if not event:
+        return jsonify({'success': False, 'message': 'Подію не знайдено'})
+        
+    if event not in current_user.booked_events:
+        return jsonify({'success': False, 'message': 'Ви не зареєстровані на цю подію!'})
+
+    try:
+        current_user.booked_events.remove(event)
+        event.remaining_seats += 1
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
 
 if __name__ == '__main__':
     with app.app_context():

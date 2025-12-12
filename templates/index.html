@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kvit.ok - Афіша Подій</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -201,13 +201,29 @@
         </div>
     </div>
     
-    <script src="{{ url_for('static', filename='js/modal-success.js') }}"></script>
+    <script>
+        let onModalCloseCallback = null;
+
+        function showSuccessModal(title, message, callback) {
+            document.getElementById('success-modal-title').innerText = title;
+            document.getElementById('success-modal-msg').innerText = message;
+            document.getElementById('successModal').style.display = 'flex';
+            onModalCloseCallback = callback;
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+            if (onModalCloseCallback) {
+                onModalCloseCallback = null;
+            }
+        }
+    </script>
 
     <footer class="glass-effect">
         <p>© 2025 Kvit.ok. Всі права захищено.</p>
     </footer>
 
-    <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 

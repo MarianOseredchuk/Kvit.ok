@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Адмін Панель - Kvit.ok</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     
 </head>
@@ -89,7 +89,111 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script>
+        async function loadAdminData() {
+            const usersRes = await fetch('/api/admin/users');
+            const users = await usersRes.json();
+            const userTable = document.getElementById('users-table-body');
+            userTable.innerHTML = '';
+            users.forEach(u => {
+                userTable.innerHTML += `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td>${u.name}</td>
+                        <td>${u.email || '-'}</td>
+                        <td>${u.role}</td>
+                        <td>
+                            <button class="action-btn btn-delete" onclick="deleteItem('user', ${u.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+
+            const eventsRes = await fetch('/api/events'); 
+            const events = await eventsRes.json();
+            const eventTable = document.getElementById('events-table-body');
+            eventTable.innerHTML = '';
+            events.forEach(e => {
+                if (e.id === 999) return; 
+
+                const safeTitle = e.title.replace(/"/g, '&quot;');
+
+                eventTable.innerHTML += `
+                    <tr>
+                        <td>${e.id}</td>
+                        <td>${e.title}</td>
+                        <td>${e.date}</td>
+                        <td>${e.remaining_seats}/${e.total_seats || '?'}</td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="openEditModal('${e.id}')">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteItem('event', ${e.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        }
+        
+
+        async function deleteItem(type, id) {
+            if (!confirm('Ви впевнені? Цю дію не можна скасувати.')) return;
+
+            const res = await fetch(`/api/admin/delete_${type}/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+
+            if (data.success) {
+                loadAdminData(); 
+            } else {
+                alert('Помилка: ' + data.message);
+            }
+        }
+
+        const editModal = document.getElementById('editEventModal');
+
+        async function openEditModal(id) {
+            const res = await fetch(`/api/event/${id}`);
+            const ev = await res.json();
+
+            document.getElementById('edit-event-id').value = ev.id;
+            document.getElementById('edit-title').value = ev.title;
+            document.getElementById('edit-date').value = ev.date;
+            document.getElementById('edit-time').value = ev.time;
+            document.getElementById('edit-location').value = ev.location;
+            document.getElementById('edit-price').value = ev.price;
+            document.getElementById('edit-total-seats').value = ev.total_seats;
+
+            editModal.style.display = 'flex';
+        }
+
+        function closeEditModal() { editModal.style.display = 'none'; }
+        window.onclick = function (event) { if (event.target == editModal) closeEditModal(); }
+
+        document.getElementById('edit-event-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            const id = data.id;
+
+            const res = await fetch(`/api/admin/update_event/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                closeEditModal();
+                loadAdminData();
+            } else {
+                alert(result.message);
+            }
+        });
+
+        loadAdminData();
+    </script>
 </body>
 
 </html>

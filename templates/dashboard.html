@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мій Кабінет - Kvit.ok</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -167,8 +167,184 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/modal-success.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        let onModalCloseCallback = null;
+        function showSuccessModal(title, message, callback) {
+            document.getElementById('success-modal-title').innerText = title;
+            document.getElementById('success-modal-msg').innerText = message;
+            document.getElementById('successModal').style.display = 'flex';
+            onModalCloseCallback = callback;
+        }
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+            if (onModalCloseCallback) {
+                onModalCloseCallback();
+                onModalCloseCallback = null;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('my-tickets-container');
+
+            try {
+                const response = await fetch('/api/my_events');
+                const events = await response.json();
+
+                if (events.length === 0) {
+                    container.innerHTML = `
+                        <div class="schedule-item glass-effect" style="padding: 20px; margin-bottom: 20px;">
+                            <p>У вас поки немає активних квитків.</p>
+                            <a href="{{ url_for('index') }}" class="main-cta-button">Знайти подію</a>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '';
+                    events.forEach(ev => {
+                        const safeDesc = (ev.description || "").replace(/"/g, '&quot;');
+                        const safeImg = ev.image_url || "";
+
+                        container.innerHTML += `
+                            <div class="event-list-card glass-effect" style="opacity: 1; transform: none; border-left: 5px solid var(--mint-primary);">
+                                <div class="event-time" style="font-size: 1.4em;">
+                                    ${ev.time}<br>
+                                    <span style="font-size: 0.5em; color: gray;">${ev.date}</span>
+                                </div>
+                                <div class="event-info">
+                                    <h4 class="event-title">${ev.title}</h4>
+                                    <p class="event-meta">
+                                        <i class="fas fa-map-marker-alt"></i> ${ev.location}
+                                    </p>
+                                </div>
+                                <div class="event-action" style="display: flex; flex-direction: column; gap: 5px;">
+                                    <button class="main-cta-button" style="background-color: #555;">
+                                        <i class="fas fa-ticket-alt"></i> Квиток
+                                    </button>
+                                    
+                                    <button class="main-cta-button" style="background-color: #95a5a6; font-size: 0.8em;"
+                                        onclick="openDashDetails('${ev.title}', '${ev.time}', '${ev.location}', '${safeDesc}', '${safeImg}')">
+                                        <i class="fas fa-info-circle"></i> Інфо
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (error) {
+                console.error('Помилка:', error);
+                container.innerHTML = '<p style="color:red">Помилка завантаження даних.</p>';
+            }
+        });
+
+        const detailsModal = document.getElementById('dashboardDetailsModal');
+
+        function openDashDetails(title, time, location, description, imageUrl) {
+            document.getElementById('dash-details-title').innerText = title;
+            document.getElementById('dash-details-time').innerText = time;
+            document.getElementById('dash-details-location').innerText = location;
+            document.getElementById('dash-details-description').innerText = description || "Опис відсутній.";
+
+            const galleryContainer = document.getElementById('dash-gallery-container');
+            galleryContainer.innerHTML = ''; 
+            galleryContainer.className = 'gallery-scroll'; 
+
+            if (imageUrl && imageUrl !== 'null') {
+                let images = [];
+                if (imageUrl.includes('http')) {
+                    images.push(imageUrl);
+                } else {
+                    images = imageUrl.split(',').map(f => `/static/uploads/${f}`);
+                }
+
+                images.forEach(src => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.className = 'gallery-item';
+                    galleryContainer.appendChild(img);
+                });
+                galleryContainer.style.display = 'flex';
+            } else {
+                galleryContainer.style.display = 'none';
+            }
+
+            detailsModal.style.display = 'flex';
+        }
+
+        function closeDashDetails() {
+            detailsModal.style.display = 'none';
+        }
+
+        const createModal = document.getElementById('createEventModal');
+
+        function openCreateModal() { createModal.style.display = 'flex'; }
+        function closeCreateModal() { createModal.style.display = 'none'; }
+
+        window.onclick = function (event) {
+            if (event.target == createModal) closeCreateModal();
+            if (event.target == detailsModal) closeDashDetails();
+            if (event.target == document.getElementById('successModal')) closeSuccessModal();
+        }
+
+        document.getElementById('total_seats')?.addEventListener('input', function () {
+            document.getElementById('remaining_seats').value = this.value;
+        });
+
+        document.getElementById('create-event-form')?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const fileInput = document.getElementById('event-images');
+                const files = fileInput.files;
+                const maxFiles = 5;
+                const maxSize = 5 * 1024 * 1024; 
+
+                if (files.length > maxFiles) {
+                    alert(`Забагато фото! Максимум дозволено: ${maxFiles}. Ви обрали: ${files.length}.`);
+                    return; 
+                }
+
+                for (let i = 0; i < files.length; i++) {
+                    if (files[i].size > maxSize) {
+                        alert(`Файл "${files[i].name}" занадто великий! Максимум 5 MB.`);
+                        return; 
+                    }
+                }
+            
+
+                const formData = new FormData(e.target);
+           
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = "Завантаження...";
+
+            try {
+                const response = await fetch('/api/create_event', {
+                    method: 'POST',
+                    
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    closeCreateModal();
+                    showSuccessModal(
+                        "Успіх!",
+                        "Подію та фото завантажено.",
+                        () => location.reload()
+                    );
+                } else {
+                    alert('Помилка: ' + result.message);
+                    btn.disabled = false;
+                    btn.innerText = "Створити";
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Помилка з\'єднання');
+                btn.disabled = false;
+                btn.innerText = "Створити";
+            }
+        });
+        
+    </script>
 </body>
 
 </html>

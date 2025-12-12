@@ -1,0 +1,119 @@
+body {
+    background: var(--light-gradient);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-dark);
+}
+
+.simple-header {
+    padding: 15px 30px;
+    margin: 20px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.simple-header .logo-placeholder {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: var(--mint-primary);
+    border: 2px dashed var(--mint-primary);
+    padding: 10px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+}
+
+.register-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 150px);
+    padding: 20px;
+}
+
+.register-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 40px;
+    text-align: center;
+}
+
+
+.register-container .section-title {
+    font-size: 2.2em;
+    color: var(--mint-primary);
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.register-container .section-title::after {
+    display: none;
+}
+
+#register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group {
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.input-group label i {
+    margin-right: 8px;
+    color: var(--mint-primary);
+}
+
+.input-group input[type="text"],
+.input-group input[type="email"],
+.input-group input[type="password"] {
+    width: 100%;
+    padding: 14px;
+    font-size: 1em;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    box-sizing: border-box;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--mint-primary);
+    box-shadow: 0 0 10px rgba(82, 178, 191, 0.3);
+}
+
+.register-submit-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    font-size: 1.1em;
+}
+
+.login-link {
+    margin-top: 25px;
+    color: var(--text-secondary);
+}
+
+.login-link a {
+    color: var(--mint-primary);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+.role-select {
+    width: 100%;
+    padding: 14px;
+    font-size: 1em;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.7);
+}

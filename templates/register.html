@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Реєстрація - Kvit.ok</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -58,8 +59,53 @@
         </div>
     </main>
 
-    <script src="{{ url_for('static', filename='js/register-form.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/modal-success.js') }}"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('password-confirm').value;
+            const role = document.getElementById('role').value;
+
+            if (password !== confirm) {
+                alert("Паролі не співпадають!");
+                return;
+            }
+
+            const btn = document.querySelector('.register-submit-btn');
+            btn.disabled = true;
+            btn.innerText = "Реєстрація...";
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccessModal(
+                        "Ласкаво просимо!",
+                        "Ваш акаунт успішно створено. Зараз ми перенаправимо вас у кабінет.",
+                        () => { window.location.href = "{{ url_for('dashboard_page') }}"; }
+                    );
+                } else {
+                    alert(result.message);
+                    btn.disabled = false;
+                    btn.innerText = "Зареєструватись";
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Помилка з'єднання");
+                btn.disabled = false;
+                btn.innerText = "Зареєструватись";
+            }
+        });
+    </script>
 
 <div id="successModal" class="modal-overlay">
     <div class="modal-window glass-effect success-modal-content" style="max-width: 400px;">
@@ -71,6 +117,26 @@
         <button class="main-cta-button" onclick="closeSuccessModal()" style="width: 100%;">Зрозуміло</button>
     </div>
 </div>
+
+<script>
+    let onModalCloseCallback = null;
+
+    function showSuccessModal(title, message, callback) {
+        document.getElementById('success-modal-title').innerText = title;
+        document.getElementById('success-modal-msg').innerText = message;
+        document.getElementById('successModal').style.display = 'flex';
+        onModalCloseCallback = callback;
+    }
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').style.display = 'none';
+        if (onModalCloseCallback) {
+            onModalCloseCallback(); 
+            onModalCloseCallback = null;
+        }
+    }
+    
+</script>
 </body>
 
 </html>

@@ -177,7 +177,7 @@ def seed_dynamic():
                 description=event_data["desc"],
                 image_url=event_data["image"],
                 total_seats=random.choice([100, 300, 500, 800]),
-                remaining_seats=random.randint(10, 100)
+                remaining_seats=random.choice([100, 150, 200, 250, 300, 350, 400, 450, 500,])
             )
             db.session.add(event)
             total += 1

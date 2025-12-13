@@ -12,10 +12,10 @@
 <body>
 
     <header class="glass-effect">
-        <a href="{{ url_for('index') }}" class="logo-placeholder">[ Kvit.ok ]</a>
+        <a href="{{ url_for('main.index') }}" class="logo-placeholder">[ Kvit.ok ]</a>
     
         <div class="auth-buttons">
-            <a href="{{ url_for('dashboard_page') }}" class="account-icon" aria-label="Мій акаунт">
+            <a href="{{ url_for('main.dashboard_page') }}" class="account-icon" aria-label="Мій акаунт">
                 <i class="fas fa-user-circle"></i>
             </a>
         </div>
@@ -151,8 +151,8 @@
     
                 {% if not current_user.is_authenticated %}
                 <p style="color: #e74c3c;">
-                    Щоб забронювати квиток, будь ласка, <a href="{{ url_for('login_page') }}">увійдіть</a> або <a
-                        href="{{ url_for('register_page') }}">зареєструйтесь</a>.
+                    Щоб забронювати квиток, будь ласка, <a href="{{ url_for('auth.login_page') }}">увійдіть</a> або <a
+                        href="{{ url_for('auth.register_page') }}">зареєструйтесь</a>.
                 </p>
                 <button type="submit" class="main-cta-button" disabled>Підтвердити реєстрацію</button>
                 {% else %}

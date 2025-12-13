@@ -13,7 +13,7 @@
 <body>
 
     <header class="simple-header glass-effect">
-        <a href="{{ url_for('index') }}" class="logo-placeholder">[ Kvit.ok ]</a>
+        <a href="{{ url_for('main.index') }}" class="logo-placeholder">[ Kvit.ok ]</a>
     </header>
 
     <main class="register-page">
@@ -54,7 +54,7 @@
                 <button type="submit" class="main-cta-button register-submit-btn">Зареєструватись</button>
             </form>
             <div class="login-link">
-                <p>Вже є акаунт? <a href="{{ url_for('login_page') }}">Увійти</a></p>
+                <p>Вже є акаунт? <a href="{{ url_for('auth.login_page') }}">Увійти</a></p>
             </div>
         </div>
     </main>
@@ -91,7 +91,7 @@
                     showSuccessModal(
                         "Ласкаво просимо!",
                         "Ваш акаунт успішно створено. Зараз ми перенаправимо вас у кабінет.",
-                        () => { window.location.href = "{{ url_for('dashboard_page') }}"; }
+                        () => { window.location.href = "{{ url_for('main.dashboard_page') }}"; }
                     );
                 } else {
                     alert(result.message);

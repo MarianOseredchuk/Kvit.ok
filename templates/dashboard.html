@@ -12,10 +12,10 @@
 <body>
 
     <header class="glass-effect">
-        <a href="{{ url_for('index') }}" class="logo-placeholder">[ Kvit.ok ]</a>
+        <a href="{{ url_for('main.index') }}" class="logo-placeholder">[ Kvit.ok ]</a>
 
         <div class="auth-buttons">
-            <a href="{{ url_for('dashboard_page') }}" class="account-icon" aria-label="Мій акаунт">
+            <a href="{{ url_for('main.dashboard_page') }}" class="account-icon" aria-label="Мій акаунт">
                 <i class="fas fa-user-circle"></i>
             </a>
         </div>
@@ -44,13 +44,13 @@
                 {% endif %}
 
                 {% if current_user.role == 'admin' %}
-                <a href="{{ url_for('admin_panel') }}" class="nav-item"
+                <a href="{{ url_for('admin.admin_panel') }}" class="nav-item"
                     style="color: #e67e22; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 15px; margin-top: 10px;">
                     <i class="fas fa-tools"></i> Панель Адміна
                 </a>
                 {% endif %}
 
-                <a href="{{ url_for('logout') }}" class="nav-item logout-btn">
+                <a href="{{ url_for('auth.logout') }}" class="nav-item logout-btn">
                     <i class="fas fa-sign-out-alt"></i> Вийти
                 </a>
             </nav>
@@ -220,7 +220,7 @@
                     container.innerHTML = `
                         <div class="schedule-item glass-effect" style="padding: 20px; margin-bottom: 20px;">
                             <p>У вас поки немає активних квитків.</p>
-                            <a href="{{ url_for('index') }}" class="main-cta-button">Знайти подію</a>
+                            <a href="{{ url_for('main.index') }}" class="main-cta-button">Знайти подію</a>
                         </div>
                     `;
                 } else {
